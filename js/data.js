@@ -88,5 +88,11 @@ export function application(course,topic){
  });
  // Every source passage contains at least five sentences; retain a safe fallback.
  while(questions.length<5)questions.push({...pick(questions)});
- return {title:'Complete the sentences',text:'Word bank: '+shuffle(questions.map(q=>q.answers[0])).join(' · '),questions};
+ const seenWords=new Set();
+ const wordBank=shuffle(questions.map(q=>q.answers[0])).filter(word=>{
+  const key=word.normalize('NFC').toLocaleLowerCase('es');
+  if(seenWords.has(key))return false;
+  seenWords.add(key);return true;
+ });
+ return {title:'Complete the sentences',text:'Word bank: '+wordBank.join(' · '),wordBank,questions};
 }

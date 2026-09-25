@@ -16,3 +16,9 @@
 .completion pre {white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;line-height:1.6;}
 .completion input,.completion textarea {display:block;width:100%;max-width:100%;margin:10px 0;}
 .completion textarea[hidden] {display:none;}
+
+/* In Context: visible, non-interactive spelling support. */
+.word-bank{margin:18px 0 22px;padding:16px;background:var(--panel2);border:2px solid var(--accent);border-radius:14px;text-align:left}
+.word-bank h3{margin:0 0 12px;font-size:13px;line-height:1.5;letter-spacing:.5px;text-transform:uppercase;color:var(--ink)}
+.word-bank-words{display:flex;flex-wrap:wrap;gap:10px;margin:0;padding:0;list-style:none}
+.word-bank-words li{max-width:100%;overflow-wrap:anywhere;padding:8px 14px;border:1px solid var(--accent);border-radius:9px;background:var(--panel);color:var(--ink);font-size:18px;font-weight:750}
