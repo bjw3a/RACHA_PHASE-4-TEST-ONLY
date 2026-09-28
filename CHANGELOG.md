@@ -1,3 +1,13 @@
+# Phase 4.2 — Flashcards
+
+- Added course → Learn / Flashcards navigation with a compact home.
+- Added topic, unit, and shuffled course review for Spanish 1 and 2.
+- Added reveal, Know it, Again, missed-card practice, and unanswered-card shuffle.
+- Centralized derived card data with future audio fields; no learning progress writes.
+- Preserved Phase 4.1 activities, mastery, word-bank boxes, content, and saved progress.
+- Standardized reading quotation marks without changing reading difficulty.
+- Added and ran regression, Flashcards, and responsive Chromium tests.
+
 # Racha 2.0 — Phase 4
 
 - Five required activities: Match-Up → Recognition → Typing → In Context → Story Challenge. Each requires at least 80%; matching uses five of six first attempts. Replay remains available.

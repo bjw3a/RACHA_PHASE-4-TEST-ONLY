@@ -1,3 +1,4 @@
+import {openFlashcards} from './flashcards.js';
 import {units,reviewId} from './curriculum.js';
 import {topics,generate,options,isCorrect,matchPairs,shuffle,story,application} from './data.js';
 import {load,save,settle,badges} from './storage.js';
@@ -6,16 +7,18 @@ import {sequence,minimum,levelState,canPlay,percentText} from './progression.js'
 const $=s=>document.querySelector(s),main=$('#main');let profile=load(),course=1,unit=null,topic=null,g=null,current=null,locked=false,timer=null,questionStart=0,deadline=0,reading=null,pairs=[],selected=null,seen=new Set(),pairAttempts=new Set(),pausedAt=0,toastTimer;
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt=n=>n.toLocaleString();
+let screen='courses';
 function toast(s){$('#toast').textContent=s;$('#toast').classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').classList.remove('show'),3500);}
 let audio;
 function sound(kind){if(!profile.sound)return;try{audio??=new(window.AudioContext||window.webkitAudioContext)();audio.resume();const o=audio.createOscillator(),a=audio.createGain();o.type='sine';o.frequency.setValueAtTime(kind==='bad'?180:kind==='end'?780:560,audio.currentTime);a.gain.setValueAtTime(.045,audio.currentTime);a.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.16);o.connect(a);a.connect(audio.destination);o.start();o.stop(audio.currentTime+.17);}catch{}}
 function settings(){document.body.classList.toggle('light',profile.light);$('#sound').textContent=profile.sound?'Sound on':'Sound off';$('#sound').setAttribute('aria-pressed',profile.sound);$('#theme').textContent=profile.light?'Dark mode':'Light mode';$('#theme').setAttribute('aria-pressed',profile.light);}
 $('#sound').onclick=()=>{profile.sound=!profile.sound;save(profile);settings();sound('good');};$('#theme').onclick=()=>{profile.light=!profile.light;save(profile);settings();};
-$('.brand').onclick=e=>{e.preventDefault();if(g&&!g.ended&&!confirm('Leave this round?'))return;topic=null;unit=null;home();};
+$('.brand').onclick=e=>{e.preventDefault();if(g&&!g.ended&&!confirm('Leave this round?'))return;topic=null;unit=null;screen='courses';home();};
 function leave(){if(g&&!g.ended&&!confirm('Leave this round? Only completed rounds save XP and records.'))return;home();}
-function home(){clearInterval(timer);g=null;current=null;if(topic){pathView();return;}const bests=Object.entries(profile.bests).filter(([k])=>k.endsWith(':quick')||k.endsWith(':story')||k.endsWith(':speed')).map(([,v])=>v);main.innerHTML=`<section class="intro"><div><h1>Keep your racha going.</h1><button class="primary" id="resume">${profile.lastTopic?'Continue Learning →':'Start Learning →'}</button></div></section><section class="setup" aria-label="Course"><div class="segmented">${[1,2].map(c=>`<button data-course="${c}" aria-pressed="${course===c}" class="${course===c?'active':''}">Spanish ${c}</button>`).join('')}</div></section><details class="badge-section"><summary>Your stats · ${fmt(profile.xp)} XP</summary><p>Best streak: ${profile.bestStreak} · Best score: ${bests.length?Math.max(...bests):'—'} / 100</p><p>XP level ${Math.floor(profile.xp/250)+1}. XP rewards improvements to your best rounds. Progress stays in this browser.</p></details>${curriculumView()}<details class="badge-section"><summary>Achievements · ${profile.achievements.length} / ${badges.length} unlocked</summary><div class="badges">${badges.map(([id,n,d])=>`<div class="badge ${profile.achievements.includes(id)?'':'locked'}">${profile.achievements.includes(id)?'★':'◇'} ${n}<small>${d}</small></div>`).join('')}</div></details>`;
+function home(){clearInterval(timer);g=null;current=null;document.body.classList.remove('flashcard-session');if(screen!=='learn'){navigation();return;}if(topic){pathView();return;}const bests=Object.entries(profile.bests).filter(([k])=>k.endsWith(':quick')||k.endsWith(':story')||k.endsWith(':speed')).map(([,v])=>v);main.innerHTML=`<section class="intro"><div><h1>Keep your racha going.</h1><button class="primary" id="resume">${profile.lastTopic?'Continue Learning →':'Start Learning →'}</button></div></section><section class="setup" aria-label="Course"><div class="segmented">${[1,2].map(c=>`<button data-course="${c}" aria-pressed="${course===c}" class="${course===c?'active':''}">Spanish ${c}</button>`).join('')}</div></section><details class="badge-section"><summary>Your stats · ${fmt(profile.xp)} XP</summary><p>Best streak: ${profile.bestStreak} · Best score: ${bests.length?Math.max(...bests):'—'} / 100</p><p>XP level ${Math.floor(profile.xp/250)+1}. XP rewards improvements to your best rounds. Progress stays in this browser.</p></details><div class="study-navigation"><button id="study-choice" class="quiet">← Learn / Flashcards</button></div>${curriculumView()}<details class="badge-section"><summary>Achievements · ${profile.achievements.length} / ${badges.length} unlocked</summary><div class="badges">${badges.map(([id,n,d])=>`<div class="badge ${profile.achievements.includes(id)?'':'locked'}">${profile.achievements.includes(id)?'★':'◇'} ${n}<small>${d}</small></div>`).join('')}</div></details>`;
 $('#resume').onclick=resume;
-main.querySelectorAll('[data-course]').forEach(b=>b.onclick=()=>{course=Number(b.dataset.course);unit=null;topic=null;home();main.querySelector(`[data-course="${course}"]`).focus();});
+$('#study-choice').onclick=()=>{screen='choice';home();};
+main.querySelectorAll('[data-course]').forEach(b=>b.onclick=()=>{course=Number(b.dataset.course);unit=null;topic=null;screen='choice';home();});
 main.querySelectorAll('[data-unit]').forEach(b=>b.onclick=()=>{unit=units[course].find(u=>u.id===b.dataset.unit);topic=null;home();$('#content-title').focus();});
 main.querySelectorAll('[data-topic]').forEach(b=>b.onclick=()=>{topic=b.dataset.topic;home();});
 $('#change-unit')?.addEventListener('click',()=>{const previous=unit?.id;unit=null;topic=null;home();(main.querySelector(`[data-unit="${previous}"]`)||$('#unit-title')).focus();});
@@ -51,8 +54,9 @@ document.addEventListener('keydown',e=>{if(e.repeat||e.altKey||e.ctrlKey||e.meta
 settings();home();
 
 function resume(){
+ screen='learn';
  const last=profile.lastTopic;
- if(!last){$('#unit-title')?.scrollIntoView({block:'start'});$('#unit-title')?.focus();return;}
+ if(!last){home();$('#unit-title')?.scrollIntoView({block:'start'});$('#unit-title')?.focus();return;}
  course=last.course;topic=last.topic;unit=units[course].find(u=>u.topics.includes(topic)||reviewId(u)===topic)||null;
  if(!topics[course][topic]&&!unit){topic=null;home();return;}
  const state=levelState(profile,course,topic);if(state.complete)home();else begin(sequence[state.next]);
@@ -63,3 +67,19 @@ function completionText(){
 }
 function completionView(){return `<details class="completion" open><summary>✓ Completion summary</summary><label for="student-name">Name (optional)</label><input id="student-name" autocomplete="off" maxlength="100"><pre>${esc(completionText())}</pre><button id="copy-completion">Copy Completion Summary</button><textarea id="copy-fallback" aria-label="Select and copy completion summary" hidden></textarea><p id="copy-status" role="status"></p></details>`;}
 function bindCompletion(){const b=$('#copy-completion');if(!b)return;b.onclick=async()=>{const name=$('#student-name').value.trim(),text=(name?'Student: '+name+'\n':'')+completionText();try{await navigator.clipboard.writeText(text);$('#copy-status').textContent='Copied! Paste into Schoology.';}catch{const field=$('#copy-fallback');field.hidden=false;field.value=text;field.focus();field.select();$('#copy-status').textContent='Copy the selected text and paste into Schoology.';}};}
+
+// A small course gateway keeps study controls off the initial home screen.
+function navigation(){
+ if(screen==='courses'){
+  main.innerHTML=`<section class="course-gateway"><h1>Keep your racha going.</h1>${profile.lastTopic?'<button class="primary" id="resume">Continue Learning →</button>':''}<div class="course-choices">${[1,2].map(c=>`<button data-course="${c}">Spanish ${c}<span aria-hidden="true">→</span></button>`).join('')}</div></section>`;
+  $('#resume')?.addEventListener('click',resume);
+  main.querySelectorAll('[data-course]').forEach(b=>b.onclick=()=>{course=Number(b.dataset.course);unit=null;topic=null;screen='choice';home();});
+ }else{
+  main.innerHTML=`<section class="course-gateway"><div class="fc-heading"><h1>Spanish ${course}</h1><button id="choose-course" class="quiet">← Courses</button></div><div class="course-choices"><button id="choose-learn">LEARN<span aria-hidden="true">→</span></button><button id="choose-flashcards">FLASHCARDS<span aria-hidden="true">→</span></button></div></section>`;
+  $('#choose-course').onclick=()=>{screen='courses';home();};
+  $('#choose-learn').onclick=()=>{screen='learn';home();$('#unit-title')?.focus({preventScroll:true});};
+  $('#choose-flashcards').onclick=()=>openFlashcards(main,course,()=>{screen='choice';home();});
+  $('#choose-learn').focus({preventScroll:true});
+ }
+ window.scrollTo({top:0,behavior:'instant'});
+}

@@ -1,7 +1,11 @@
-# Racha 2.0 — Phase 4
+# Racha 2.0 — Phase 4.2 Flashcards
 
-Upload index.html, styles.css, favicon.svg and the js folder to the same GitHub Pages repository location as before. Keep js beside index.html. Upload the extracted contents, not the ZIP or an enclosing folder. GitHub Pages uses relative asset paths; no build is required.
+Complete static application based on the exact Phase 4.1 ZIP. See PHASE-4.2.md for the development summary, card editing guide, and limitations.
 
-Progress stays in the same browser and origin. Clearing browser data or switching browsers/devices does not transfer progress. Completion summaries are student-provided local results, not verified teacher records.
+Extract this ZIP and upload its contents into the root of `bjw3a/RACHA_PHASE-4-TEST-ONLY`. Keep `index.html`, `styles.css`, `favicon.svg`, and `js/` together. Include the new `js/flashcards.js` and `js/flashcards-data.js`. Upload the extracted contents, not the ZIP or its enclosing folder. No build is required.
 
-For development tests, use Node 20.19+ and run `npm ci` then `npm test` in tests/. `npm run test:browser` additionally needs Playwright Chromium installed. See TESTING.md for checks actually run for this release.
+Choose a course, then Learn or Flashcards. Continue Learning resumes the existing learning progression. Flashcards offers topic, unit, and whole-course review without affecting XP or mastery.
+
+Learning progress stays in the same browser and origin. Flashcard results last only for the open round and reset on refresh or exit. Completion summaries remain student-provided local results, not verified teacher records.
+
+Developer checks: Node 20.19+; run `npm ci`, `npm test`, and `npx playwright install chromium` followed by `npm run test:browser` in `tests/`. See TESTING.md for checks performed.

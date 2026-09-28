@@ -1,7 +1,7 @@
 // Five grounded comprehension questions per topic. No network or runtime dependencies.
 const passage=(title,text,items)=>({title,text,questions:items.map(([prompt,answer,...wrong])=>[prompt,answer,wrong])});
 export const readings={
- greetings:passage('Un día de saludos','Por la mañana, Ana dice: «Buenos días, profesora». La profesora responde: «Hola, Ana». Por la tarde, Ana dice: «Buenas tardes, Luis». Luis presenta a su amiga y Ana dice: «Mucho gusto». Al salir, Ana dice: «Hasta mañana».',[
+ greetings:passage('Un día de saludos','Por la mañana, Ana dice: "Buenos días, profesora". La profesora responde: "Hola, Ana". Por la tarde, Ana dice: "Buenas tardes, Luis". Luis presenta a su amiga y Ana dice: "Mucho gusto". Al salir, Ana dice: "Hasta mañana".',[
  ['What does Ana say in the morning?','Buenos días','Buenas tardes','Hasta mañana'],['Who says “Hola, Ana”?','la profesora','Luis','la amiga'],['When does Ana greet Luis?','por la tarde','por la mañana','por la noche'],['What does Ana say when meeting a new friend?','Mucho gusto','Adiós','Buenas noches'],['When does Ana expect to see them again?','tomorrow','tonight','next month']]),
  introductions:passage('Conoce a Ana','Me llamo Ana. Soy de México. Tengo quince años. Mi amigo se llama Luis. Él es de Ecuador y tiene dieciséis años. Hoy estoy bien, pero Luis está cansado.',[
  ['What is the narrator’s name?','Ana','Luis','Eva'],['Where is Ana from?','México','Ecuador','España'],['How old is Ana?','15','16','14'],['Where is Luis from?','Ecuador','México','Chile'],['How does Luis feel?','tired','well','sad']]),
