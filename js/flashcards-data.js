@@ -1,6 +1,6 @@
 // Phase 4.2: one catalog derived from the existing curriculum. No random questions.
 import {units, contentTopics} from './curriculum.js';
-import {matchBank, persons, ser, vocab, conjugate, agree, timeAnswers} from './data.js';
+import {matchBank, persons, ser, vocab, conjugate, agree, timeAnswers, shuffle} from './data.js';
 
 // Add optional standalone cards here without changing the study interface.
 // {course:1, unit:'s1-u1', topic:'greetings', front:'Hello!', back:'¡Hola!',
@@ -24,7 +24,8 @@ function topicCards(course, unit, topic) {
   }
  } else {
   // Reverse a small, consistent subset to mix recognition and recall.
-  (matchBank(course,topic)||[]).forEach(([es,en],i)=>{
+  (matchBank(course,topic)||[]).forEach(([es,english],i)=>{
+   const en=topic==='greetings'&&es==='buenas noches'?'good evening / good night':english;
    if(i%5===4)add(es,en,'translation','es','en');
    else add(en,es,'translation','en','es');
   });
@@ -47,4 +48,25 @@ export function cardsFor(course, selection='mixed') {
  const selected=new Set(contentTopics(course,selection));
  const extras=extraCards.filter(c=>c.course===course).map(c=>({...c,id:`${course}:${pairKey(c.front,c.back)}`,audio:c.audio??null}));
  return uniqueCards([...flashcardCatalog[course],...extras].filter(c=>selected.has(c.topic)&&!forbidden.test(c.front+' '+c.back)));
+}
+
+// Sample from each unit before course-level deduplication: mixed-review units
+// can share cards with other units and must still receive a fair allocation.
+export function cumulativeReview(course, size=30) {
+ const buckets=shuffle(units[course].map(unit=>shuffle(cardsFor(course,`unit:${unit.id}`))));
+ const selected=[],seen=new Set();
+ while(selected.length<size) {
+  let added=false;
+  for(const bucket of buckets) {
+   let card;
+   while(bucket.length) {
+    const candidate=bucket.pop(),key=pairKey(candidate.front,candidate.back);
+    if(!seen.has(key)){card=candidate;seen.add(key);break;}
+   }
+   if(card){selected.push(card);added=true;}
+   if(selected.length===size)break;
+  }
+  if(!added)break;
+ }
+ return shuffle(selected);
 }

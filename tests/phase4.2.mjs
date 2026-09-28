@@ -42,7 +42,7 @@ for(const c of [1,2]){
   }
   click('#fc-back');
  }
- click('#fc-all');assert.equal($('#fc-count').textContent,`1 / ${cardsFor(c).length}`);click('#fc-back');click('#fc-back');click('#choose-course');
+ click('#fc-all');assert.equal($('#fc-count').textContent,`1 / 30`);click('#fc-back');click('#fc-back');click('#choose-course');
 }
 click('[data-course="1"]');click('#choose-flashcards');click('[data-fc-unit="s1-u2"]');click('[data-fc-topic="days"]');
 const missed=[];

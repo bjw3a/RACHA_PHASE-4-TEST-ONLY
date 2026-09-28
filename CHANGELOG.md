@@ -1,3 +1,12 @@
+# Phase 4.2.1 — Flashcards refinement
+
+- Review Everything now samples 30 cards balanced across units for both courses.
+- Retained all 465 Spanish 1 and 406 Spanish 2 course-review cards.
+- Clarified PRACTICE MISSED CARDS / START OVER / NEW 30-CARD REVIEW labels.
+- START OVER restores the entire original topic/unit set after missed-card rounds.
+- Corrected buenas noches to good evening / good night in Flashcards only.
+- Preserved approved visuals, Learn, curriculum, and local storage unchanged.
+
 # Phase 4.2 — Flashcards
 
 - Added course → Learn / Flashcards navigation with a compact home.

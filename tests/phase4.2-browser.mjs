@@ -17,7 +17,18 @@ try{
   await page.goto(url);assert.equal(await page.locator('.curriculum').count(),0);
   if(screens&&c===1)await page.screenshot({path:path.join(screens,`home-${width}.png`),fullPage:true,animations:'disabled'});
   await page.click(`[data-course="${c}"]`);assert(await page.locator('#choose-learn').isVisible());await page.click('#choose-flashcards');
-  await page.click('#fc-all');assert.equal(await page.locator('#fc-count').textContent(),`1 / ${cardsFor(c).length}`);
+  await page.click('#fc-all');assert.equal(await page.locator('#fc-count').textContent(),`1 / 30`);
+  const firstReview=await page.evaluate(()=>{const fronts=[];for(let i=0;i<30;i++){fronts.push(document.querySelector('#fc-text').textContent);document.querySelector('#fc-card').click();document.querySelector(i<2?'#fc-again':'#fc-known').click();}return fronts;});
+  assert.equal(await page.locator('#fc-practice').textContent(),'PRACTICE MISSED CARDS');
+  assert.equal(await page.locator('#fc-restart').textContent(),'NEW 30-CARD REVIEW');
+  assert((await page.locator('.fc-summary').textContent()).includes('28 / 30 known'));
+  for(const selector of ['#fc-practice','#fc-restart']){const b=await page.locator(selector).boundingBox();assert(b.x>=0&&b.x+b.width<=width&&b.y+b.height<=height);}
+  if(screens)await page.screenshot({path:path.join(screens,`cumulative-results-${c}-${width}.png`),fullPage:true,animations:'disabled'});
+  await page.click('#fc-practice');assert.equal(await page.locator('#fc-count').textContent(),'1 / 2');
+  for(let i=0;i<2;i++){assert.equal(await page.locator('#fc-text').textContent(),firstReview[i]);await page.click('#fc-card');await page.click('#fc-known');}
+  assert.equal(await page.locator('#fc-restart').textContent(),'NEW 30-CARD REVIEW');
+  await page.click('#fc-restart');assert.equal(await page.locator('#fc-count').textContent(),'1 / 30');
+
   await page.click('#fc-back');
   await page.click(`[data-fc-unit="s${c}-u${c===1?2:1}"]`);await page.click('#fc-unit-review');assert(await page.locator('#fc-card').isVisible());await page.click('#fc-back');
   const topic=c===1?'days':'ser';await page.click(`[data-fc-topic="${topic}"]`);
@@ -53,9 +64,10 @@ try{
    await page.click('#fc-card');await page.click(i<2?'#fc-again':'#fc-known');
    if(i===2)await page.click('#fc-shuffle');
   }
-  assert((await page.locator('.fc-summary').textContent()).includes(`${total-2} / ${total} known`));await page.click('#fc-practice');
+  assert.equal(await page.locator('#fc-practice').textContent(),'PRACTICE MISSED CARDS');assert.equal(await page.locator('#fc-restart').textContent(),'START OVER');assert((await page.locator('.fc-summary').textContent()).includes(`${total-2} / ${total} known`));await page.click('#fc-practice');
   for(const front of missed){assert.equal(await page.locator('#fc-text').textContent(),front);await page.click('#fc-card');await page.click('#fc-known');}
   assert((await page.locator('.fc-summary').textContent()).includes('2 / 2 known'));assert.equal(await page.locator('#fc-practice').count(),0);
+  await page.click('#fc-restart');assert.equal(await page.locator('#fc-count').textContent(),`1 / ${total}`);
   assert.equal(await page.evaluate(()=>localStorage.getItem('racha-progress-v1')),before);
   await page.reload();assert(await page.locator('[data-course="1"]').isVisible());assert.equal(await page.evaluate(()=>localStorage.getItem('racha-progress-v1')),before);
   await page.close();
