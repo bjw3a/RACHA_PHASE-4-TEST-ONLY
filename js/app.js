@@ -1,4 +1,4 @@
-import {unitCompletionView,bindUnitCompletion} from './unit-completion.js';
+import {unitComplete,unitCompletionView,bindUnitCompletion} from './unit-completion.js';
 import {openFlashcards} from './flashcards.js';
 import {units,reviewId} from './curriculum.js';
 import {topics,generate,options,isCorrect,matchPairs,shuffle,story,application} from './data.js';
@@ -40,7 +40,7 @@ function pathView(){
 }
 function contentLabel(){return topic?.startsWith('unit:')?`${unit.name} · Mixed review`:topics[course][topic];}
 function curriculumView(){
- if(!unit&&topic!=='mixed')return `<section class="curriculum" aria-labelledby="unit-title"><h2 id="unit-title" tabindex="-1">Choose a unit</h2><div class="unit-grid">${units[course].map((u,i)=>`<button class="unit-card" data-unit="${u.id}"><span class="unit-icon" aria-hidden="true">${u.icon}</span><span><small>UNIT ${i+1}</small><strong>${esc(u.name)}</strong></span><span aria-hidden="true">→</span></button>`).join('')}</div><button id="course-review" class="quiet">Review all of Spanish ${course} ↗</button></section>`;
+ if(!unit&&topic!=='mixed')return `<section class="curriculum" aria-labelledby="unit-title"><h2 id="unit-title" tabindex="-1">Choose a unit</h2><div class="unit-grid">${units[course].map((u,i)=>`<button class="unit-card" data-unit="${u.id}"><span class="unit-icon" aria-hidden="true">${u.icon}</span><span><small>UNIT ${i+1}</small><strong>${esc(u.name)}</strong>${unitComplete(profile,course,u)?'<span class="unit-completed"><span aria-hidden="true">✓</span> COMPLETED</span>':''}</span><span aria-hidden="true">→</span></button>`).join('')}</div><button id="course-review" class="quiet">Review all of Spanish ${course} ↗</button></section>`;
  if(!unit)return `<section class="curriculum"><div class="curriculum-heading"><h2>All-course mixed review</h2><button id="change-unit" class="quiet">← Choose a unit</button></div></section>`;
  return `<section class="curriculum" aria-labelledby="content-title"><div class="curriculum-heading"><div><span class="eyebrow">SPANISH ${course} / UNIT ${units[course].indexOf(unit)+1}</span><h2 id="content-title" tabindex="-1">${esc(unit.name)}</h2></div><button id="change-unit" class="quiet">← Units</button></div>${unitCompletionView(profile,course,unit)}<span class="label">Choose a topic</span><div class="topic-grid">${[[reviewId(unit),'Mixed review', 'Every topic in this unit'],...unit.topics.map(t=>[t,topics[course][t],'Focus on this topic'])].map(([id,name,hint])=>`<button class="topic-card ${topic===id?'active':''}" data-topic="${id}" aria-pressed="${topic===id}"><strong>${esc(name)}</strong><small>${hint}</small></button>`).join('')}</div>${topic?`<p class="selection-summary" role="status">Ready: ${esc(contentLabel())}. Your next level is ready.</p>`:''}</section>`;
 }
