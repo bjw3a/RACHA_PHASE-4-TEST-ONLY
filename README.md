@@ -1,11 +1,9 @@
-# Racha 2.0 — Phase 4.2.1
+# Racha 2.0 — Phase 4.2.2
 
-Complete static application based on the exact Racha-2.0-Phase-4.2-Flashcards(1).zip. See PHASE-4.2.1.md for the development summary, card editing guide, and limitations.
+Complete static GitHub Pages application. Open **PHASE-4.2.2.md** for changes, configuration, deployment and verification.
 
-Extract this ZIP and upload its contents into the root of `bjw3a/RACHA_PHASE-4-TEST-ONLY`. Keep `index.html`, `styles.css`, `favicon.svg`, and `js/` together. Include the new `js/flashcards.js` and `js/flashcards-data.js`. Upload the extracted contents, not the ZIP or its enclosing folder. No build is required.
+Before enabling unit-completion email, enter your school address in `js/config.js` → `TEACHER_EMAIL`. With it blank, Copy Completion still works. No password, server or account is needed.
 
-Choose a course, then Learn or Flashcards. Continue Learning resumes the existing learning progression. Flashcards offers topic, unit, and balanced 30-card whole-course review without affecting XP or mastery.
+Extract the ZIP and upload its contents to your existing testing repository root, keeping `index.html` at root. Existing same-browser progress is retained.
 
-Learning progress stays in the same browser and origin. Flashcard results last only for the open round and reset on refresh or exit. Completion summaries remain student-provided local results, not verified teacher records.
-
-Developer checks: Node 20.19+; run `npm ci`, `npm test`, and `npx playwright install chromium` followed by `npm run test:browser` in `tests/`. See TESTING.md for checks performed.
+Tests: run `npm install` in `tests`, then `npm test`; install Playwright Chromium and run `npm run test:browser` for browser checks. Tests and development dependencies are not needed by GitHub Pages.

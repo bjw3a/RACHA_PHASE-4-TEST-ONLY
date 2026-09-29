@@ -16,7 +16,7 @@ for(const course of [1,2]){
  const dom=new JSDOM(fs.readFileSync(new URL('../index.html',import.meta.url),'utf8'),{url:'http://example.test/racha/'}),w=dom.window;
  for(const k of ['document','localStorage','window'])globalThis[k]=k==='window'?w:w[k];
  globalThis.confirm=()=>true;w.scrollTo=()=>{};
- const profile=fresh();profile.xp=530;profile.achievements=['first'];profile.bests={'2:ser:quick':100};profile.lastTopic={course,topic:'ser'};
+ const profile=fresh();profile.xp=530;profile.achievements=['first'];profile.bests={'2:ser:quick':100};profile.lastTopic={course,topic:'ser'};profile.lastTopics[course]={course,topic:'ser'};
  profile.mastery[`${course}:ser`]=Object.fromEntries(sequence.slice(0,3).map(m=>[m,{completed:true,best:100,completedAt:'2026-09-24'}]));
  localStorage.setItem('racha-progress-v1',JSON.stringify(profile));
  await import(`../js/app.js?course=${course}`);

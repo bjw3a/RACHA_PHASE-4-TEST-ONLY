@@ -1,7 +1,7 @@
 import {recordMastery,sequence,levelState,progressKey} from './progression.js';
 export const KEY='racha-progress-v1';
 const clean=n=>Number.isFinite(n)&&n>=0?Math.floor(n):0;
-export function fresh(){return {xp:0,bestStreak:0,correct:0,games:0,bests:{},mastery:{},xpBests:{},achievements:[],sound:false,light:false,lastTopic:null,completionDates:{}};}
+export function fresh(){return {xp:0,bestStreak:0,correct:0,games:0,bests:{},mastery:{},xpBests:{},achievements:[],sound:false,light:false,lastTopic:null,lastTopics:{},completionDates:{}};}
 export function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(!d||typeof d!=='object')return fresh();const s=fresh();for(const k of ['xp','bestStreak','correct','games'])s[k]=clean(d[k]);for(const k of ['sound','light'])s[k]=d[k]===true;if(d.bests&&typeof d.bests==='object')for(const [k,v] of Object.entries(d.bests))if(Number.isFinite(v)&&v>=0)s.bests[k]=v;s.achievements=Array.isArray(d.achievements)?d.achievements.filter(v=>typeof v==='string'):[];if(d.mastery&&typeof d.mastery==='object')for(const [key,levels] of Object.entries(d.mastery)){
  if(!/^[12]:/.test(key)||!levels||typeof levels!=='object')continue;
  s.mastery[key]={};
@@ -12,6 +12,7 @@ export function load(){try{const d=JSON.parse(localStorage.getItem(KEY));if(!d||
  }
  if(d.xpBests&&typeof d.xpBests==='object')for(const [key,value] of Object.entries(d.xpBests))if(/^[12]:/.test(key))s.xpBests[key]=clean(value);
  if(d.lastTopic && [1,2].includes(d.lastTopic.course) && typeof d.lastTopic.topic==='string')s.lastTopic=d.lastTopic;
+ if(d.lastTopics&&typeof d.lastTopics==='object')for(const c of [1,2]){const last=d.lastTopics[c];if(last?.course===c&&typeof last.topic==='string')s.lastTopics[c]=last;}
  if(d.completionDates&&typeof d.completionDates==='object')s.completionDates=d.completionDates;
  return s;}catch{return fresh();}}
 export function save(s){try{localStorage.setItem(KEY,JSON.stringify(s));return true;}catch{return false;}}

@@ -1,3 +1,7 @@
+# Phase 4.2.2 validation
+
+See PHASE-4.2.2.md for current coverage and the school-device email limitation. The historical results below describe earlier releases.
+
 # Phase 4.2.1 validation — September 28, 2026
 
 Passed:

@@ -1,3 +1,7 @@
+# Phase 4.2.2
+
+Simplified course-specific Learn navigation; clear Next Card action; optional whole-unit email/copy reports with editable saved student names. See PHASE-4.2.2.md.
+
 # Phase 4.2.1 — Flashcards refinement
 
 - Review Everything now samples 30 cards balanced across units for both courses.

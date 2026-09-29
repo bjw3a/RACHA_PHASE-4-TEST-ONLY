@@ -20,10 +20,10 @@ try{
   await page.reload();await page.click('[data-course="1"]');await page.click('#choose-learn');await page.click('[data-unit="s1-u2"]');await page.click('[data-topic="days"]');assert.equal(await page.locator('#play-level').getAttribute('data-mode'),'quick');
   await page.click('#play-level');assert(await page.locator('#prompt').isVisible());await page.click('.choice');assert(await page.locator('#feedback').isVisible());
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
-  page.on('dialog',d=>d.accept());await page.click('#leave');await page.click('#change-topic');await page.click('[data-course="2"]');await page.click('#choose-learn');await page.click('[data-unit="s2-u1"]');await page.click('[data-topic="ser"]');assert.equal(await page.locator('#play-level').getAttribute('data-mode'),'match');
+  page.on('dialog',d=>d.accept());await page.click('#leave');await page.click('.brand');await page.click('[data-course="2"]');await page.click('#choose-learn');await page.click('[data-unit="s2-u1"]');await page.click('[data-topic="ser"]');assert.equal(await page.locator('#play-level').getAttribute('data-mode'),'match');
   if(width===320){
    const {units,reviewId}=await import('../js/curriculum.js');
-   for(const c of [1,2]){await page.click('#change-topic');await page.click(`[data-course="${c}"]`);await page.click('#choose-learn');
+   for(const c of [1,2]){await page.click('.brand');await page.click(`[data-course="${c}"]`);await page.click('#choose-learn');
     for(const unit of units[c]){await page.click(`[data-unit="${unit.id}"]`);
      for(const topic of [reviewId(unit),...unit.topics]){await page.click(`[data-topic="${topic}"]`);const rect=await page.locator('#play-level').boundingBox();assert(rect.y+rect.height<=height,`PLAY visible for ${topic} at 320`);assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.click('#change-topic');}
      await page.click('#change-unit');}

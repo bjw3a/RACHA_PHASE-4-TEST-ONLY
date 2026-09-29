@@ -6,7 +6,7 @@ const clock=FakeTimers.install({now:1000000}),$=s=>document.querySelector(s),cli
 const saved=()=>JSON.parse(localStorage.getItem('racha-progress-v1'));
 localStorage.setItem('racha-progress-v1',JSON.stringify({xp:500,bestStreak:9,correct:25,games:3,bests:{'1:days:quick':90,'2:mixed:story':100},achievements:['first']}));
 await import('../js/app.js');
-function choose(t,c=1){if($('#change-topic'))click('#change-topic');click(`[data-course="${c}"]`);click('#choose-learn');click(`[data-unit="${units[c].find(u=>u.topics.includes(t)).id}"]`);click(`[data-topic="${t}"]`);}
+function choose(t,c=1){click('.brand');click(`[data-course="${c}"]`);click('#choose-learn');click(`[data-unit="${units[c].find(u=>u.topics.includes(t)).id}"]`);click(`[data-topic="${t}"]`);}
 function solve(ok=true,t='days',c=1){const prompt=$('#prompt').textContent;let q;for(let i=0;i<20000;i++){q=generate(c,t);if(q.prompt===prompt)break;}assert.equal(q.prompt,prompt);respond(q,ok);}
 function respond(q,ok=true){if($('#typed')){$('#typed').value=ok?q.answers[0]:'wrong';$('#answer-form').dispatchEvent(new w.Event('submit',{cancelable:true}));}else{const b=[...document.querySelectorAll('.choice')].find(b=>isCorrect(b.lastElementChild.textContent,q)===ok);assert(b);b.click();}assert($('#next'));}
 function match(wrong=0){const es=[...document.querySelectorAll('[data-side="es"]')];for(let i=0;i<wrong;i++){es[i].click();[...document.querySelectorAll('[data-side="en"]')].find(b=>b.dataset.pair!==es[i].dataset.pair).click();}for(const b of es){b.click();click(`[data-side="en"][data-pair="${b.dataset.pair}"]`);}assert($('.result'));}

@@ -34,7 +34,7 @@ export function openFlashcards(main,course,onExit) {
   if(index>=deck.length){summary();return;}
   revealed=false;
   const card=deck[index];
-  main.innerHTML=`<section class="fc-study">${header(title)}<div class="fc-tools"><span id="fc-count" role="status">${index+1} / ${deck.length}</span><button id="fc-shuffle" class="quiet">Shuffle</button></div><button id="fc-card" class="fc-card" aria-label="Reveal answer" aria-expanded="false"><span id="fc-text" lang="${card.frontLang||'en'}">${esc(card.front)}</span><small id="fc-hint">Tap to reveal</small></button><div class="fc-actions"><button id="fc-known" class="primary" disabled>✓ KNOW IT</button><button id="fc-again" disabled>↻ AGAIN</button></div></section>`;
+  main.innerHTML=`<section class="fc-study">${header(title)}<div class="fc-tools"><span id="fc-count" role="status">${index+1} / ${deck.length}</span><button id="fc-shuffle" class="quiet">Shuffle</button></div><button id="fc-card" class="fc-card" aria-label="Reveal answer" aria-expanded="false"><span id="fc-text" lang="${card.frontLang||'en'}">${esc(card.front)}</span><small id="fc-hint">Tap to reveal</small></button><div class="fc-actions"><button id="fc-known" class="primary" disabled>NEXT CARD →<small>I know it</small></button><button id="fc-again" disabled>↻ REVIEW LATER</button></div></section>`;
   $('#fc-back').onclick=home;
   $('#fc-card').onclick=()=>{
    revealed=!revealed;
