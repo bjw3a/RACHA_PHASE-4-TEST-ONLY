@@ -42,24 +42,34 @@ export const adjectives=adjectiveWords.map(([es])=>es);
 export function agree(a,f,p){let s=a.endsWith('o')&&f?a.slice(0,-1)+'a':a==='trabajador'&&f?'trabajadora':a;return s+(p?(s.endsWith('r')?'es':'s'):'');}
 // Vowel accents are optional; ñ is deliberately preserved.
 export function normalize(s){return String(s).toLowerCase().normalize('NFC').replace(/[áàäâ]/g,'a').replace(/[éèëê]/g,'e').replace(/[íìïî]/g,'i').replace(/[óòöô]/g,'o').replace(/[úùüû]/g,'u').replace(/[’']/g,'').replace(/[^\p{L}\p{N}\s]/gu,' ').replace(/\s+/g,' ').trim();}
-export const isCorrect=(value,q)=>q.answers.some(a=>normalize(a)===normalize(value));
+// Only generated time questions use this equivalence rule. Keep number-internal y.
+function normalizeTime(value){
+ const text=normalize(value);
+ if(/^son las una(?: |$)/.test(text)||(/^es la /.test(text)&&!/^es la una(?: |$)/.test(text)))return text;
+ return text.replace(/^(?:son las|es la) /,'')
+  .replace(/^(una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce) y /,'$1 ');
+}
+export const isCorrect=(value,q)=>{
+ const norm=q.time?normalizeTime:normalize;
+ return q.answers.some(a=>norm(a)===norm(value));
+};
 function q(prompt,answer,pool,explanation,extra={}){return {prompt,answers:Array.isArray(answer)?answer:[answer],pool,explanation,...extra};}
 export function timeAnswers(h,m){const base=h===1?'Es la una':'Son las '+number(h);return m===0?[base,base+' en punto']:[base+' y '+number(m),...(m===15?[base+' y cuarto']:m===30?[base+' y media']:[])];}
-function vocabulary(bank){const row=pick(bank),reverse=Math.random()<.5;return reverse?q(`“${row[1]}”`,[row[0],...(bank===vocab.family?[row[0].replace(/^(la|el|los|las) /,'')]:[]),...bank.filter(r=>r.slice(1).includes(row[1])).map(r=>r[0]),...(row[0]==='morado'?['violeta']:row[0]==='anaranjado'?['naranja']:row[0]==='rosado'?['rosa']:row[0]==='marrón'?['café']:[])],bank.map(r=>r[0]),`${row[0]} = ${row[1]}.`,{lang:'es'}):q(`What does “${row[0]}” mean?`,row.slice(1),bank.map(r=>r[1]),`${row[0]} = ${row[1]}.`,{lang:'en'});}
-export function generate(course,topic){topic=pick(contentTopics(course,topic));if(topic==='verbs')topic=pick(['ar','er','ir']);
- if(topic==='numbers'){const n=Math.floor(Math.random()*101);return Math.random()<.5?q(`${n}`,number(n),Array.from({length:101},(_,i)=>number(i)),`${n} = ${number(n)}.`,{lang:'es'}):q(`${number(n)}`,String(n),Array.from({length:101},(_,i)=>String(i)),`${number(n)} = ${n}.`,{lang:'en'});}
- if(topic==='time'){const h=1+Math.floor(Math.random()*12),m=pick([0,5,10,15,20,25,30,35,40,45,50,55]);return q(`¿Qué hora es?  ${h}:${String(m).padStart(2,'0')}`,timeAnswers(h,m),Array.from({length:12},(_,i)=>timeAnswers(i+1,m)[0]),h===1?'Use “Es la una” for one o’clock.':'Use “Son las” for hours other than one.',{lang:'es'});}
+function vocabulary(bank,typing=false){const row=pick(bank),reverse=typing||Math.random()<.5;return reverse?q(`“${row[1]}”`,[row[0],...(bank===vocab.family?[row[0].replace(/^(la|el|los|las) /,'')]:[]),...bank.filter(r=>r.slice(1).includes(row[1])).map(r=>r[0]),...(row[0]==='morado'?['violeta']:row[0]==='anaranjado'?['naranja']:row[0]==='rosado'?['rosa']:row[0]==='marrón'?['café']:[])],bank.map(r=>r[0]),`${row[0]} = ${row[1]}.`,{lang:'es'}):q(`What does “${row[0]}” mean?`,row.slice(1),bank.map(r=>r[1]),`${row[0]} = ${row[1]}.`,{lang:'en'});}
+export function generate(course,topic,typing=false){topic=pick(contentTopics(course,topic));if(topic==='verbs')topic=pick(['ar','er','ir']);
+ if(topic==='numbers'){const n=Math.floor(Math.random()*101);return Math.random()<.5?q(`${n}`,number(n),Array.from({length:101},(_,i)=>number(i)),`${n} = ${number(n)}.`,{lang:'es'}):q(`${number(n)}`,String(n),Array.from({length:101},(_,i)=>String(i)),`${number(n)} = ${n}.`,{lang:'en',numeric:true});}
+ if(topic==='time'){const h=1+Math.floor(Math.random()*12),m=pick([0,5,10,15,20,25,30,35,40,45,50,55]);return q(`¿Qué hora es?  ${h}:${String(m).padStart(2,'0')}`,timeAnswers(h,m),Array.from({length:12},(_,i)=>timeAnswers(i+1,m)[0]),h===1?'Use “Es la una” for one o’clock.':'Use “Son las” for hours other than one.',{lang:'es',time:true});}
  if(topic==='pronouns'&&Math.random()<.4){const [subject,p]=pick(pronounSubjects);return q(`Replace with a Spanish subject pronoun: ${subject}`,p,persons.map(r=>r[0]),`${subject} → ${p}.`,{lang:'es'});}
  if(topic==='ser'){
   const kind=Math.random();
-  if(kind<.25)return vocabulary(familySer);
-  if(kind<.5)return vocabulary(serPairs(course));
+  if(kind<.25)return vocabulary(familySer,typing);
+  if(kind<.5)return vocabulary(serPairs(course),typing);
   const [p,i]=pick(coursePersons(course));return q(`${p} ___ ${p==='usted'?'profesor':i>=3?'estudiantes':'estudiante'}. (ser)`,ser[i],ser.slice(0,5),`${p} uses ${ser[i]}.`,{lang:'es'});
  }
- if(topic==='adjectives'){if(Math.random()<.2)return vocabulary(adjectiveWords);const a=pick(adjectives),f=Math.random()<.5,p=Math.random()<.5,n=f?'chica':'chico',s=(p?'Las ':'La ');return q(`${f?s:(p?'Los ':'El ')}${n}${p?'s':''} ${p?'son':'es'} ___. (${a})`,agree(a,f,p),[agree(a,false,false),agree(a,true,false),agree(a,false,true),agree(a,true,true)],`Match the ${f?'feminine':'masculine'}, ${p?'plural':'singular'} noun.`,{lang:'es'});}
- if(topic==='gusta')return vocabulary(preferencePairs());
- if(['ar','er','ir'].includes(topic)){if(Math.random()<.2)return vocabulary(vocab[topic]);const [v]=pick(vocab[topic]),[p,i]=pick(coursePersons(course));return q(Math.random()<.25?`Conjugate ${v} for ${p}.`:`${p} ___ ${contexts[v]}. (${v})`,conjugate(v,i),Array.from({length:5},(_,j)=>conjugate(v,j)),`${p} + ${v} → ${conjugate(v,i)}.`,{lang:'es'});}
- return vocabulary(vocab[topic]);}
+ if(topic==='adjectives'){if(Math.random()<.2)return vocabulary(adjectiveWords,typing);const a=pick(adjectives),f=Math.random()<.5,p=Math.random()<.5,n=f?'chica':'chico',s=(p?'Las ':'La ');return q(`${f?s:(p?'Los ':'El ')}${n}${p?'s':''} ${p?'son':'es'} ___. (${a})`,agree(a,f,p),[agree(a,false,false),agree(a,true,false),agree(a,false,true),agree(a,true,true)],`Match the ${f?'feminine':'masculine'}, ${p?'plural':'singular'} noun.`,{lang:'es'});}
+ if(topic==='gusta')return vocabulary(preferencePairs(),typing);
+ if(['ar','er','ir'].includes(topic)){if(Math.random()<.2)return vocabulary(vocab[topic],typing);const [v]=pick(vocab[topic]),[p,i]=pick(coursePersons(course));return q(Math.random()<.25?`Conjugate ${v} for ${p}.`:`${p} ___ ${contexts[v]}. (${v})`,conjugate(v,i),Array.from({length:5},(_,j)=>conjugate(v,j)),`${p} + ${v} → ${conjugate(v,i)}.`,{lang:'es'});}
+ return vocabulary(vocab[topic],typing);}
 export function options(question){const wrong=shuffle([...new Set(question.pool)]).filter(v=>!isCorrect(v,question));return shuffle([question.answers[0],...wrong.slice(0,3)]);}
 function serPairs(course){const english={yo:'I am',tú:'you are (informal singular)',él:'he is',ella:'she is',usted:'you are (formal singular)',nosotros:'we are (masculine or mixed)',nosotras:'we are (feminine)',ellos:'they are (masculine or mixed)',ellas:'they are (feminine)',ustedes:'you are (plural, ustedes)'};return coursePersons(course).map(([p,i])=>[`${p} ${ser[i]}`,english[p]]);}
 function preferencePairs(){return vocab.gusta.flatMap(([es,en])=>[[`Me gusta ${es}.`,`I like ${en}.`],[`No me gusta ${es}.`,`I don’t like ${en}.`,`I do not like ${en}.`]]);}
